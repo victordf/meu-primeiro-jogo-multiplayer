@@ -16,16 +16,32 @@
         <script src="/socket.io/socket.io.js"></script>
     </head>
     <body>
-        <canvas id="screen" width="40" height="40"></canvas>
+        <canvas id="screen" width="20" height="20" inputmode=""></canvas>
 
         <script type="module">
+            import createGame from './game.js'
             import renderScreen from './render-screen.js'
 
+            const game = createGame()
             const socket = io()
 
             socket.on('connect', () => {
+                const playerId = socket.id
+                console.log(`> Usuário conectado com o id: ${playerId}`)
                 const screen = document.getElementById('screen')
-                renderScreen(screen, requestAnimationFrame)
+                renderScreen(screen, game, requestAnimationFrame, playerId)
+            })
+
+            socket.on('setup', (state, observers) => {
+                game.setState(state)
+                console.log(game)
+                game.subscribe('place-select', (command) => {
+                    socket.emit('place-select', command)
+                })
+            })
+
+            socket.on('place-select', (command) => {
+                game.placeSelect(command)
             })
         </script>
     </body>
