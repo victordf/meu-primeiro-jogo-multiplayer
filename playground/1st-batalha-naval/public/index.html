@@ -32,16 +32,21 @@
                 renderScreen(screen, game, requestAnimationFrame, playerId)
             })
 
-            socket.on('setup', (state, observers) => {
+            socket.on('setup', (state) => {
+                const playerId = socket.id
                 game.setState(state)
-                console.log(game)
-                game.subscribe('place-select', (command) => {
+                console.log('teste')
+                game.subscribe((command) => {
+                    command.playerId = playerId
                     socket.emit('place-select', command)
                 })
             })
 
             socket.on('place-select', (command) => {
-                game.placeSelect(command)
+                const playerId = socket.id
+                if (playerId !== command.playerId) {
+                    game.placeSelect(command)
+                }
             })
         </script>
     </body>

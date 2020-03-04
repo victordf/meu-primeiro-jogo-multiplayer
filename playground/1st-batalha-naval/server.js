@@ -7,26 +7,24 @@ const app = express()
 const server = http.createServer(app)
 const sockets = socketio(server)
 const port = 3000
-const game = createGame()
-game.start()
 
 app.use(express.static('public'))
 
+const game = createGame()
+game.start()
+
 game.subscribe((command) => {
+    console.log(`> Emitting ${command.type}`)
     sockets.emit(command.type, command)
 })
 
 sockets.on('connection', (socket) => {
     const playerId = socket.id
     console.log(`> Player connected on Server with id: ${playerId}`)
-    socket.emit('setup', game.state, game.observers)
-
-    socket.on('mouse-move', (command) => {
-        command.playerId = playerId
-        game.mouseMove(command)
-    })
+    socket.emit('setup', game.state)
 
     socket.on('place-select', (command) => {
+        console.log('teste Repetição')
         command.playerId = playerId
         game.placeSelect(command)
     })

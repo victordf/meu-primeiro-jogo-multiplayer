@@ -3,11 +3,7 @@ export default function createGame(screen) {
         players: {},
         board: [],
         ships: {},
-        bombs: {
-            'rthT9b59pLF96ImXAAAC': [
-                '1,4'
-            ]
-        },
+        bombs: {},
         x: 40,
         y: 40,
         selectedCell: null,
@@ -42,13 +38,15 @@ export default function createGame(screen) {
         }
     }
 
-    function subscribe(type, callback) {
-        observers[type] = callback
+    function subscribe(callback) {
+        observers.push(callback)
     }
 
     function notifyall(command) {
-        if (observers[command.type]) {
-            observers[command.type](command)
+        console.log(observers)
+        for (const observer of observers) {
+            console.log(observer)
+            observer(command)
         }
     }
 
@@ -62,19 +60,20 @@ export default function createGame(screen) {
             type: 'mouse-move'
         }
         setState({ ...state, ...command })
-        notifyall(c)
     }
 
     function placeSelect(command) {
         let cords = state.players[command.playerId] ? state.players[command.playerId] : []
+        let selectedCell = command.selectedCell ? command.selectedCell : state.selectedCell
         cords.push({
             x: command.x,
             y: command.y
         })
         let bombs = state.bombs[command.playerId] ? state.bombs[command.playerId] : []
-        bombs.push(state.selectedCell)
+        bombs.push(selectedCell)
         let c = {
             ...command,
+            selectedCell: selectedCell,
             type: 'place-select'
         }
         setState({

@@ -7,23 +7,19 @@ export default function renderScreen(screen, game, requestAnimationFrame, player
     const y = game.state ? game.state.y ? game.state.y : null : null
 
     // -- Render board
-    // game.state.board.forEach(cell => {
-    //         let path = new Path2D()
-    //         let cellS = cell.split(',')
-    //         path.rect(cellS[1], cellS[0], 1, 1)
-    //         context.beginPath()
-    //         if (context.isPointInPath(path, x, y)) {
-    //             game.handleSelectCell(cell)
-    //             context.fillStyle = '#465'
-    //         } else {
-    //             if (handleCheckPlayersBombs(cell)) {
-    //                 context.fillStyle = '#222'
-    //             } else {
-    //                 context.fillStyle = '#ddd'
-    //             }
-    //         }
-    //         context.fill(path)
-    // })
+    game.state.board.forEach(cell => {
+        let path = new Path2D()
+        let cellS = cell.split(',')
+        path.rect(cellS[1], cellS[0], 1, 1)
+        context.beginPath()
+        if (context.isPointInPath(path, x, y)) {
+            game.handleSelectCell(cell)
+            context.fillStyle = '#465'
+        } else {
+            context.fillStyle = '#fff'
+        }
+        context.fill(path)
+    })
 
     // -- Render players bombs
     if (game.state.bombs[playerId]) {
@@ -34,6 +30,16 @@ export default function renderScreen(screen, game, requestAnimationFrame, player
         })
     }
 
+    let arrBombsOthers = unificateBombs()
+    if (arrBombsOthers) {
+        arrBombsOthers.forEach(bomb => {
+            let cells = bomb.split(',')
+            context.fillStyle = '#ccc'
+            context.fillRect(cells[1], cells[0], 1, 1)
+        })
+    }
+    
+
     function handleCheckPlayersBombs(cell) {
         let obj = null
         if (game.state.bombs[playerId]) {
@@ -42,6 +48,18 @@ export default function renderScreen(screen, game, requestAnimationFrame, player
             })
         }
         return obj ? true : false
+    }
+
+    function unificateBombs() {
+        let arr = []
+        Object.entries(game.state.bombs).filter(bomb => {
+            return bomb[0] !== playerId
+        }).forEach(bomb => {
+            bomb[1].forEach(cell => {
+                arr.push(cell)
+            })
+        })
+        return arr
     }
 
     // -- Render ship menu
